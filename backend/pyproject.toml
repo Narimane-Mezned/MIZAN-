@@ -15,3 +15,51 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mizan"]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.13.1",
+    "import-linter>=2.15",
+    "mypy>=2.4.0",
+    "pytest>=9.1.1",
+    "ruff>=0.17.1",
+]
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "S", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src/mizan"]
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --import-mode=importlib"
+
+[tool.importlinter]
+root_package = "mizan"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layers only import inward"
+type = "layers"
+layers = [
+    "mizan.api",
+    "mizan.application",
+    "mizan.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "Domain does not depend on frameworks or outer layers"
+type = "forbidden"
+source_modules = ["mizan.domain"]
+forbidden_modules = ["mizan.api", "mizan.application", "mizan.infrastructure", "fastapi"]
